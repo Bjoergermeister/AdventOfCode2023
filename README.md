@@ -5,7 +5,7 @@ Language: Go
 
 ## Current progress
 
-Day 1: <span style="color:yellow"></span>\
+Day 1: <span style="color:yellow">&#11088;</span>\
 Day 2: <span style="color:yellow"></span>\
 Day 3: <span style="color:yellow"></span>\
 Day 4: <span style="color:yellow"></span>\
@@ -31,7 +31,7 @@ Day 23: <span style="color:yellow"></span>\
 Day 24: <span style="color:yellow"></span>\
 Day 25: <span style="color:yellow"></span>\
 \
-Total: 0 out of 50
+Total: 1 out of 50
 
 # Other years
 
