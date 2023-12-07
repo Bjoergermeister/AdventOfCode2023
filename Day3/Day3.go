@@ -7,6 +7,12 @@ import (
 	"strconv"
 )
 
+type Number struct {
+	number int
+}
+
+var gears map[int][]int
+
 func isDigit(char byte) bool {
 	return char >= '0' && char <= '9'
 }
@@ -17,14 +23,25 @@ func checkSurrounding(lines []string, lineIndex int, start int, end int) bool {
 	xMax := min(end+1, len(lines[lineIndex])-1)
 	yMax := min(lineIndex+1, len(lines)-1)
 
+	result := false
 	for y := yMin; y <= yMax; y++ {
 		for x := xMin; x <= xMax; x++ {
-			if lines[y][x] != '.' && isDigit(lines[y][x]) == false {
-				return true
+			result = (lines[y][x] != '.' && isDigit(lines[y][x]) == false) || result
+
+			if lines[y][x] == '*' {
+				number, err := strconv.Atoi(lines[lineIndex][start : end+1])
+				if err != nil {
+					panic(err)
+				}
+				position := y*len(lines[lineIndex]) + x
+				if _, ok := gears[position]; ok == false {
+					gears[position] = make([]int, 0)
+				}
+				gears[position] = append(gears[position], number)
 			}
 		}
 	}
-	return false
+	return result
 }
 
 func Puzzle1(lines []string) int {
@@ -34,7 +51,6 @@ func Puzzle1(lines []string) int {
 		numberStart := -1
 		numberEnd := -1
 		for i := 0; i < len(line); i++ {
-
 			// If the current position is a digit and the previous is not, we found the start of a number
 			if isDigit(line[i]) && previousPositionIsNumber == false {
 				numberStart = i
@@ -58,6 +74,7 @@ func Puzzle1(lines []string) int {
 					number, _ := strconv.Atoi(line[numberStart : numberEnd+1])
 					total += number
 				}
+
 				numberStart = -1
 				numberEnd = -1
 			}
@@ -67,7 +84,19 @@ func Puzzle1(lines []string) int {
 	return total
 }
 
+func Puzzle2() int {
+	total := 0
+	for _, list := range gears {
+		if len(list) == 2 {
+			total += list[0] * list[1]
+		}
+	}
+	return total
+}
+
 func main() {
+	gears = make(map[int][]int)
+
 	file, _ := os.Open("input.txt")
 	scanner := bufio.NewScanner(file)
 
@@ -78,4 +107,5 @@ func main() {
 	}
 
 	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	fmt.Printf("Puzzle 2: %d\n", Puzzle2())
 }
