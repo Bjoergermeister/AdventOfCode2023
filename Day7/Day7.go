@@ -14,6 +14,7 @@ type Hand struct {
 	bid       int
 }
 
+var isSecondPuzzle bool = false
 var hands []Hand
 var lines []string
 var handStrengths = []int{5, 41, 32, 311, 221, 2111, 11111}
@@ -59,6 +60,22 @@ func compareFunction(i, j int) bool {
 	return true
 }
 
+func applyJokerRule(cards map[byte]int) {
+	if amount, containsJoker := cards['J']; containsJoker && isSecondPuzzle {
+		highestCardCount := 0
+		var targetKey byte
+		for card, count := range cards {
+			if count > highestCardCount && card != 'J' {
+				highestCardCount = count
+				targetKey = card
+			}
+		}
+
+		cards[targetKey] = highestCardCount + amount
+		delete(cards, 'J')
+	}
+}
+
 func Puzzle1(lines []string) int {
 	for lineIndex, line := range lines {
 		hand := Hand{}
@@ -70,6 +87,8 @@ func Puzzle1(lines []string) int {
 				cards[line[i]] = 1
 			}
 		}
+
+		applyJokerRule(cards)
 
 		bid, _ := strconv.Atoi(line[6:len(line)])
 
@@ -99,4 +118,8 @@ func main() {
 	}
 
 	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	cardStrenghts = []byte{'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'}
+	hands = make([]Hand, 0)
+	isSecondPuzzle = true
+	fmt.Printf("Puzzle 2: %d\n", Puzzle1(lines))
 }
