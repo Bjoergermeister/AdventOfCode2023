@@ -48,23 +48,32 @@ func calculateChangeSequences(sequences [][]int) [][]int {
 	return sequences
 }
 
-func calculateChangeValue(sequences [][]int) int {
+func calculateChangeValue(sequences [][]int, findPrevious bool) int {
 	lastChangeValue := 0
 	for i := len(sequences) - 2; i >= 1; i-- {
 		sequence := sequences[i]
-		lastChangeValue = sequence[len(sequence)-1] + lastChangeValue
+		if findPrevious {
+			lastChangeValue = sequence[0] - lastChangeValue
+		} else {
+			lastChangeValue = sequence[len(sequence)-1] + lastChangeValue
+		}
 	}
-	return sequences[0][len(sequences[0])-1] + lastChangeValue
+
+	if findPrevious {
+		return sequences[0][0] - lastChangeValue
+	} else {
+		return sequences[0][len(sequences[0])-1] + lastChangeValue
+	}
 }
 
-func Puzzle1(lines []string) int {
+func run(lines []string, findPrevious bool) int {
 	total := 0
 	for _, line := range lines {
 		var sequences [][]int
 
 		sequences = parseSequence(line)
 		sequences = calculateChangeSequences(sequences)
-		total += calculateChangeValue(sequences)
+		total += calculateChangeValue(sequences, findPrevious)
 	}
 
 	return total
@@ -81,5 +90,6 @@ func main() {
 		lines = append(lines, line)
 	}
 
-	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	fmt.Printf("Puzzle 1: %d\n", run(lines, false))
+	fmt.Printf("Puzzle 2: %d\n", run(lines, true))
 }
