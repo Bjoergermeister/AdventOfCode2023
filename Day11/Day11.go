@@ -8,8 +8,32 @@ import (
 )
 
 var GRID_WIDTH int
+var EXPANSION_SIZE int
 
-func calculateDistance(galaxy1 int, galaxy2 int, nonEmptyRows []int, nonEmptyColumns []int) int {
+var NON_EMPTY_ROWS []int
+var NON_EMPTY_COLUMNS []int
+var GALAXIES []int
+
+func parseGrid(lines []string) {
+	// Search GALAXIES and remember rows and colums where at least one galaxy is located
+	for y, line := range lines {
+		for x, column := range line {
+			if column == '#' {
+				if slices.Contains(NON_EMPTY_ROWS, y) == false {
+					NON_EMPTY_ROWS = append(NON_EMPTY_ROWS, y)
+				}
+
+				if slices.Contains(NON_EMPTY_COLUMNS, x) == false {
+					NON_EMPTY_COLUMNS = append(NON_EMPTY_COLUMNS, x)
+				}
+
+				GALAXIES = append(GALAXIES, y*GRID_WIDTH+x)
+			}
+		}
+	}
+}
+
+func calculateDistance(galaxy1 int, galaxy2 int) int {
 	x1 := galaxy1 % GRID_WIDTH
 	y1 := galaxy1 / GRID_WIDTH
 	x2 := galaxy2 % GRID_WIDTH
@@ -22,53 +46,32 @@ func calculateDistance(galaxy1 int, galaxy2 int, nonEmptyRows []int, nonEmptyCol
 
 	xDistance := 0
 	for x := xStart; x <= xEnd; x++ {
-		if slices.Contains(nonEmptyColumns, x) {
+		if slices.Contains(NON_EMPTY_COLUMNS, x) {
 			xDistance++
 		} else {
-			xDistance += 2
+			xDistance += EXPANSION_SIZE
 		}
 	}
 
 	yDistance := 0
 	for y := yStart; y <= yEnd; y++ {
-		if slices.Contains(nonEmptyRows, y) {
+		if slices.Contains(NON_EMPTY_ROWS, y) {
 			yDistance++
 		} else {
-			yDistance += 2
+			yDistance += EXPANSION_SIZE
 		}
 	}
 
 	return xDistance + yDistance - 2 // Don't count the position of the first galaxy and only count the corner twice
 }
 
-func Puzzle1(lines []string) int {
-	var nonEmptyRows []int
-	var nonEmptyColumns []int
-	var galaxies []int
-
-	// Search galaxies and remember rows and colums where at least one galaxy is located
-	for y, line := range lines {
-		for x, column := range line {
-			if column == '#' {
-				if slices.Contains(nonEmptyRows, y) == false {
-					nonEmptyRows = append(nonEmptyRows, y)
-				}
-
-				if slices.Contains(nonEmptyColumns, x) == false {
-					nonEmptyColumns = append(nonEmptyColumns, x)
-				}
-
-				galaxies = append(galaxies, y*GRID_WIDTH+x)
-			}
-		}
-	}
-
+func run(lines []string) int {
 	total := 0
-	for i := 0; i < len(galaxies)-1; i++ {
-		for j := i + 1; j < len(galaxies); j++ {
-			galaxy1 := galaxies[i]
-			galaxy2 := galaxies[j]
-			distance := calculateDistance(galaxy1, galaxy2, nonEmptyRows, nonEmptyColumns)
+	for i := 0; i < len(GALAXIES)-1; i++ {
+		for j := i + 1; j < len(GALAXIES); j++ {
+			galaxy1 := GALAXIES[i]
+			galaxy2 := GALAXIES[j]
+			distance := calculateDistance(galaxy1, galaxy2)
 			total += distance
 		}
 	}
@@ -89,5 +92,10 @@ func main() {
 
 	GRID_WIDTH = len(lines[0])
 
-	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	parseGrid(lines)
+
+	EXPANSION_SIZE = 2
+	fmt.Printf("Puzzle 1: %d\n", run(lines))
+	EXPANSION_SIZE = 1000000
+	fmt.Printf("Puzzle 2: %d\n", run(lines))
 }
