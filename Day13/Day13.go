@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"strings"
 )
+
+var isPuzzle2 bool = false
 
 func getPatternSize(patternDimension float64, divider float64) int {
 	if divider <= patternDimension/2 {
@@ -16,23 +17,30 @@ func getPatternSize(patternDimension float64, divider float64) int {
 	}
 }
 
+func calculateLineDifference(line1 string, line2 string) int {
+	difference := 0
+	for i := 0; i < len(line1); i++ {
+		if line1[i] != line2[i] {
+			difference++
+		}
+	}
+	return difference
+}
+
 func checkHorizontalPattern(lines []string, start int, end int) int {
 	patternHeight := float64(end-start) + 1
 	for divider := 1.5; divider < patternHeight; divider++ {
 		patternSize := getPatternSize(patternHeight, divider)
 
-		matches := true
+		difference := 0
 		for j := 1; j <= patternSize; j++ {
 			top := lines[start+int(math.Ceil(divider))-j-1]
 			bottom := lines[start+int(math.Floor(divider))+j-1]
 
-			if strings.EqualFold(top, bottom) == false {
-				matches = false
-				break
-			}
+			difference += calculateLineDifference(top, bottom)
 		}
 
-		if matches {
+		if (difference == 0 && isPuzzle2 == false) || (difference == 1 && isPuzzle2) {
 			return int(math.Floor(divider)) * 100
 		}
 
@@ -47,15 +55,12 @@ func checkVerticalPattern(lines []string, start int, end int) int {
 	for divider := 1.5; divider < patternWidth; divider++ {
 		patternSize := getPatternSize(patternWidth, divider)
 
-		matches := true
+		difference := 0
 		for j := 1; j <= patternSize; j++ {
-			if compareVerticalLines(lines, start, end, divider, j) == false {
-				matches = false
-				break
-			}
+			difference += compareVerticalLines(lines, start, end, divider, j)
 		}
 
-		if matches {
+		if (difference == 0 && isPuzzle2 == false) || (difference == 1 && isPuzzle2) {
 			return int(math.Floor(divider))
 		}
 	}
@@ -63,20 +68,21 @@ func checkVerticalPattern(lines []string, start int, end int) int {
 	return 0
 }
 
-func compareVerticalLines(lines []string, start int, end int, divider float64, index int) bool {
+func compareVerticalLines(lines []string, start int, end int, divider float64, index int) int {
+	difference := 0
 	for i := start; i <= end; i++ {
 		lowerIndex := int(math.Ceil(divider)) - index - 1
 		upperIndex := int(math.Floor(divider)) + index - 1
 		left := lines[i][lowerIndex]
 		right := lines[i][upperIndex]
 		if left != right {
-			return false
+			difference++
 		}
 	}
-	return true
+	return difference
 }
 
-func Puzzle1(lines []string) int {
+func run(lines []string) int {
 	total := 0
 	lineIndex := 0
 
@@ -110,5 +116,7 @@ func main() {
 		lines = append(lines, line)
 	}
 
-	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	fmt.Printf("Puzzle 1: %d\n", run(lines))
+	isPuzzle2 = true
+	fmt.Printf("Puzzle 2: %d\n", run(lines))
 }
