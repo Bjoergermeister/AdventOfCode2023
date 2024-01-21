@@ -21,12 +21,40 @@ type Beam struct {
 }
 
 func Puzzle1(lines []string) int {
+	return run(lines, 0, RIGHT)
+}
+
+func Puzzle2(lines []string) int {
+	largest := 0
+
+	// Horizontally
+	for i := 0; i < GRID_WIDTH; i++ {
+		highest := max(
+			run(lines, i, BOTTOM),
+			run(lines, GRID_WIDTH*(GRID_HEIGHT-1)+i, TOP),
+		)
+		largest = max(largest, highest)
+	}
+
+	// Vertically
+	for i := 0; i < GRID_HEIGHT; i++ {
+		highest := max(
+			run(lines, i*GRID_WIDTH, RIGHT),
+			run(lines, i*GRID_WIDTH+(GRID_WIDTH-1), LEFT),
+		)
+		largest = max(largest, highest)
+	}
+
+	return largest
+}
+
+func run(lines []string, position int, direction int) int {
 	beams := make([]Beam, 0, 100)
 	state := make(map[int][]int)
 
 	beams = append(beams, Beam{
-		position:  0,
-		direction: RIGHT,
+		position:  position,
+		direction: direction,
 	})
 
 	for len(beams) > 0 {
@@ -141,4 +169,5 @@ func main() {
 	GRID_HEIGHT = len(lines)
 
 	fmt.Printf("Puzzle 1: %d\n", Puzzle1(lines))
+	fmt.Printf("Puzzle 1: %d\n", Puzzle2(lines))
 }
